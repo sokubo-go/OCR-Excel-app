@@ -2,6 +2,7 @@ import logging
 import os
 import uuid
 from pathlib import Path
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, UploadFile
@@ -105,10 +106,13 @@ async def convert_timecards(files: list[UploadFile]):
             filename += f"_{first.employee_name}"
         filename += ".xlsx"
 
+        encoded_filename = quote(filename)
         return StreamingResponse(
             excel_buffer,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{filename}"},
+            headers={
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
+            },
         )
 
     finally:
