@@ -36,11 +36,11 @@ async def index():
 @app.post("/api/convert")
 async def convert_timecards(files: list[UploadFile]):
     """タイムカード画像をアップロードしてExcelに変換する"""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key or api_key == "sk-your-api-key-here":
         raise HTTPException(
             status_code=500,
-            detail="OPENAI_API_KEY が設定されていません。.env ファイルを確認してください。",
+            detail="OPENAI_API_KEY が設定されていません。.env ファイルに有効なAPIキーを設定してください。",
         )
 
     if not files:
@@ -73,7 +73,14 @@ async def convert_timecards(files: list[UploadFile]):
         logger.info("Processing %d images (request: %s)", len(saved_paths), request_id)
 
         # OCR処理
-        timecard_list = extract_timecard_data(saved_paths, api_key)
+        try:
+            timecard_list = extract_timecard_data(saved_paths, api_key)
+        except Exception as e:
+            logger.exception("OCR processing failed")
+            raise HTTPException(
+                status_code=500,
+                detail=f"OCR処理中にエラーが発生しました: {e}",
+            )
 
         if not timecard_list:
             raise HTTPException(
@@ -82,7 +89,14 @@ async def convert_timecards(files: list[UploadFile]):
             )
 
         # Excel生成
-        excel_buffer = generate_excel(timecard_list)
+        try:
+            excel_buffer = generate_excel(timecard_list)
+        except Exception as e:
+            logger.exception("Excel generation failed")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Excel生成中にエラーが発生しました: {e}",
+            )
 
         # ファイル名生成
         first = timecard_list[0]
