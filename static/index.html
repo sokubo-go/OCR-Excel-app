@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイムカードOCR変換</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>タイムカード OCR 変換</h1>
+            <p class="subtitle">タイムカードの写真をアップロードすると、AI-OCRで読み取りExcelに変換します</p>
+        </header>
+
+        <main>
+            <!-- アップロードエリア -->
+            <div id="dropZone" class="drop-zone">
+                <div class="drop-zone-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>ここにタイムカード画像をドラッグ&ドロップ</p>
+                    <p class="drop-zone-hint">または</p>
+                    <button type="button" id="selectBtn" class="btn btn-secondary">ファイルを選択</button>
+                    <p class="drop-zone-hint">JPG, PNG, WebP対応 / 複数枚OK</p>
+                </div>
+                <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+            </div>
+
+            <!-- プレビューエリア -->
+            <div id="previewArea" class="preview-area" hidden>
+                <div class="preview-header">
+                    <h2>アップロード画像 (<span id="fileCount">0</span>枚)</h2>
+                    <button type="button" id="clearBtn" class="btn btn-text">すべてクリア</button>
+                </div>
+                <div id="previewGrid" class="preview-grid"></div>
+            </div>
+
+            <!-- 変換ボタン -->
+            <div id="actionArea" class="action-area" hidden>
+                <button type="button" id="convertBtn" class="btn btn-primary">
+                    <span class="btn-label">Excel に変換</span>
+                </button>
+            </div>
+
+            <!-- 進捗表示 -->
+            <div id="progressArea" class="progress-area" hidden>
+                <div class="spinner"></div>
+                <p id="progressText">AI-OCRで読み取り中...</p>
+            </div>
+
+            <!-- エラー表示 -->
+            <div id="errorArea" class="error-area" hidden>
+                <p id="errorText"></p>
+                <button type="button" id="retryBtn" class="btn btn-secondary">やり直す</button>
+            </div>
+
+            <!-- 完了表示 -->
+            <div id="successArea" class="success-area" hidden>
+                <svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <p>変換が完了しました！</p>
+                <p class="success-hint">ダウンロードが自動的に開始されます</p>
+                <button type="button" id="newBtn" class="btn btn-secondary">新しいファイルを変換</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
