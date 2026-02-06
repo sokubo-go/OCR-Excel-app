@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.excel import generate_excel
+from app.excel import generate_excel, merge_excels
 from app.ocr import extract_timecard_data
 
 load_dotenv()
@@ -101,7 +101,7 @@ async def convert_timecards(files: list[UploadFile]):
 
         # ファイル名生成
         first = timecard_list[0]
-        filename = f"勤怠表_{first.year}年{first.month}月"
+        filename = f"勤務表_{first.year}年{first.month}月分"
         if first.employee_name:
             filename += f"_{first.employee_name}"
         filename += ".xlsx"
@@ -122,3 +122,33 @@ async def convert_timecards(files: list[UploadFile]):
                 Path(path).unlink(missing_ok=True)
             except OSError:
                 pass
+
+
+@app.post("/api/merge")
+async def merge_excel_files(files: list[UploadFile]):
+    """複数のExcelファイルを1つにマージする"""
+    if len(files) < 2:
+        raise HTTPException(status_code=400, detail="マージするには2つ以上のファイルが必要です。")
+
+    import io
+
+    buffers: list[io.BytesIO] = []
+    for file in files:
+        content = await file.read()
+        buffers.append(io.BytesIO(content))
+
+    try:
+        merged = merge_excels(buffers)
+    except Exception as e:
+        logger.exception("Merge failed")
+        raise HTTPException(status_code=500, detail=f"マージ中にエラーが発生しました: {e}")
+
+    filename = "勤務表_統合.xlsx"
+    encoded_filename = quote(filename)
+    return StreamingResponse(
+        merged,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
+        },
+    )

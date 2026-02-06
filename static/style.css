@@ -28,7 +28,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 2rem 1rem;
 }
@@ -82,6 +82,13 @@ header h1 {
     font-size: 0.85rem;
 }
 
+.upload-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 0.75rem 0;
+}
+
 /* ボタン */
 .btn {
     display: inline-flex;
@@ -105,8 +112,8 @@ header h1 {
 .btn-primary {
     background-color: var(--primary);
     color: white;
-    font-size: 1.1rem;
-    padding: 1rem 2.5rem;
+    font-size: 1.05rem;
+    padding: 0.9rem 2rem;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -122,6 +129,15 @@ header h1 {
     background-color: #cbd5e1;
 }
 
+.btn-camera {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-camera:hover:not(:disabled) {
+    background-color: #047857;
+}
+
 .btn-text {
     background: none;
     color: var(--danger);
@@ -131,6 +147,17 @@ header h1 {
 
 .btn-text:hover {
     text-decoration: underline;
+}
+
+.btn-download {
+    background-color: var(--success);
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-download:hover {
+    background-color: #15803d;
 }
 
 /* プレビュー */
@@ -143,6 +170,8 @@ header h1 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .preview-header h2 {
@@ -150,9 +179,30 @@ header h1 {
     font-weight: 600;
 }
 
+.preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.select-all-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
 .preview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
 }
 
@@ -160,8 +210,13 @@ header h1 {
     position: relative;
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     background: var(--surface);
+    transition: border-color 0.2s;
+}
+
+.preview-item.selected {
+    border-color: var(--primary);
 }
 
 .preview-item img {
@@ -171,10 +226,25 @@ header h1 {
     display: block;
 }
 
-.preview-item .remove-btn {
+.preview-item .item-overlay {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 6px;
+}
+
+.preview-item .item-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+.preview-item .remove-btn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -245,34 +315,77 @@ header h1 {
     font-weight: 500;
 }
 
-/* 成功 */
-.success-area {
+/* 変換結果エリア */
+.results-area {
     margin-top: 2rem;
-    text-align: center;
-    padding: 2rem;
-    background-color: #f0fdf4;
-    border-radius: var(--radius);
-    border: 1px solid #bbf7d0;
 }
 
-.success-icon {
-    width: 48px;
-    height: 48px;
-    color: var(--success);
+.results-header {
     margin-bottom: 1rem;
 }
 
-.success-area p {
-    margin-bottom: 0.5rem;
+.results-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
 }
 
-.success-hint {
+.results-hint {
     color: var(--text-muted);
     font-size: 0.85rem;
 }
 
-.success-area .btn {
-    margin-top: 1rem;
+.results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+.result-item.selected {
+    border-color: var(--primary);
+    background: #eff6ff;
+}
+
+.result-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+}
+
+.result-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.result-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.result-detail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.results-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 /* レスポンシブ */
@@ -289,7 +402,17 @@ header h1 {
         padding: 2rem 1rem;
     }
 
+    .upload-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
     .preview-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+
+    .preview-header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

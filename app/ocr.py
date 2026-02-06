@@ -19,25 +19,34 @@ SYSTEM_PROMPT = """\
   "employee_name": "従業員名",
   "year": "2025",
   "month": "1",
+  "contract_period": "2025年2月1日 ～ 2026年1月31日",
   "records": [
     {
       "date": "1",
       "day_of_week": "月",
-      "clock_in": "09:00",
-      "clock_out": "18:00",
-      "break_time": "1:00",
-      "working_hours": "8:00",
-      "overtime": "0:00",
-      "remarks": ""
+      "clock_in": "8:00",
+      "clock_out": "17:00",
+      "break_minutes": "60",
+      "working_hours": "8.00",
+      "overtime": "",
+      "remarks": "",
+      "manager": "佐藤"
     }
   ]
 }
 
 重要なルール:
-- 時刻は "HH:MM" 形式で出力 (例: "09:00", "18:30")
+- 時刻は "H:MM" または "HH:MM" 形式で出力 (例: "8:00", "17:00")
+- 休憩時間は分単位の数値で出力 (例: "60")
+- 実働時間・契約外時間は小数形式で出力 (例: "8.00", "1.50")
 - 日付は日のみ (例: "1", "15", "31")
 - 曜日は1文字 (例: "月", "火", "水")
-- 記録がない日（空欄の日）はrecordsに含めないでください
+- 出勤・退勤の記録がない日（空欄の日）もrecordsに含めてください（値は空文字""にする）
+- 土日祝で出勤していない日も含めてください
+- その月の全日分（1日〜末日）を含めてください
+- 備考欄に「有給休暇」「欠勤」などの記載があればそのまま含めてください
+- 管理者確認欄（管理者名）があれば含めてください
+- 契約期間が読み取れない場合は空文字にしてください
 - 必ず有効なJSONのみを出力してください（説明文や```は不要）
 """
 
@@ -107,7 +116,6 @@ def extract_timecard_data(image_paths: list[str], api_key: str) -> list[Timecard
     json_text = raw_text
     if json_text.startswith("```"):
         lines = json_text.split("\n")
-        # 最初と最後の ``` 行を除去
         lines = [l for l in lines if not l.strip().startswith("```")]
         json_text = "\n".join(lines)
 
